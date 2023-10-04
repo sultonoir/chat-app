@@ -7,7 +7,15 @@ const Login = () => {
   return (
     <div>
       no data
-      <Button onClick={() => signIn("github")}>Login</Button>
+      <Button
+        onClick={() =>
+          signIn("github", {
+            callbackUrl: "/",
+          })
+        }
+      >
+        Login
+      </Button>
     </div>
   );
 };
