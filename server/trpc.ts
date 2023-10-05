@@ -1,10 +1,29 @@
 import { TRPCError, initTRPC } from "@trpc/server";
-import { getServerSession } from "next-auth";
+import { Session, getServerSession } from "next-auth";
 import { db } from "@/lib";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-const t = initTRPC.create({
+type CreateContextOptions = {
+  session: Session | null;
+};
+const createInnerTRPCContext = (opts: CreateContextOptions) => {
+  return {
+    session: opts.session,
+    db,
+  };
+};
+
+export const createTRPCContext = async () => {
+  // Get the session from the server using the getServerSession wrapper function
+  const session = await getServerSession();
+
+  return createInnerTRPCContext({
+    session,
+  });
+};
+
+const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
     return {
@@ -17,6 +36,7 @@ const t = initTRPC.create({
     };
   },
 });
+
 const middleware = t.middleware;
 
 const isAuth = middleware(async (opts) => {

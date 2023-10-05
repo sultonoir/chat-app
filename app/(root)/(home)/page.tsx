@@ -1,6 +1,5 @@
 import Login from "@/components/session/Login";
 import HomeClient from "@/components/shared/HomeClient";
-
 import { getServerSession } from "next-auth";
 import React from "react";
 

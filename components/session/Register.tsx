@@ -37,7 +37,7 @@ const Register = () => {
     },
   });
 
-  const { mutate, isLoading } = api.postUser.useMutation({
+  const { mutate, isLoading } = api.user.postUser.useMutation({
     onSuccess: () => {
       toast.success("account created");
       form.reset();

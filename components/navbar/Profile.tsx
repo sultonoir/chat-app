@@ -1,10 +1,11 @@
 import useProfile from "@/hooks/useProfle";
-import { Button, Image, Input } from "@nextui-org/react";
+import { Button, Input } from "@nextui-org/react";
 import { User } from "@prisma/client";
 import React from "react";
 import { BiLeftArrowAlt } from "react-icons/bi";
 import ModalUploadImage from "../modal/ModalUploadImage";
 import { MdModeEditOutline } from "react-icons/md";
+import { motion } from "framer-motion";
 interface Props {
   user: User;
 }
@@ -14,7 +15,7 @@ const Profile = ({ user }: Props) => {
   return (
     <>
       {profile.isOpen && (
-        <div className="absolute top-0 z-10 flex h-screen w-full flex-col bg-bgsearch">
+        <motion.div className="absolute top-0 z-10 flex h-screen w-full flex-col bg-bgsearch">
           <div
             onClick={profile.onClose}
             className="flex flex-row items-center bg-bgchat py-3 pl-3"
@@ -23,16 +24,7 @@ const Profile = ({ user }: Props) => {
             <p>Profile</p>
           </div>
           <div className="flex h-full max-h-max flex-col items-center gap-3">
-            <div className="mx-auto my-3 h-[200px] w-[200px]">
-              <Image
-                src={user.image || "/logo.png"}
-                alt={user.name || ""}
-                width={200}
-                height={200}
-                radius="full"
-              />
-            </div>
-            <ModalUploadImage />
+            <ModalUploadImage imageUrl={user.image || ""} />
             <div className="w-full px-[30px] pb-[10px] pt-[14px]">
               <div className="flex items-center">Name</div>
               <Input
@@ -82,7 +74,7 @@ const Profile = ({ user }: Props) => {
               />
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
     </>
   );

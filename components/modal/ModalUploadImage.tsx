@@ -8,14 +8,20 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
+  Image,
 } from "@nextui-org/react";
 import Cropper from "react-easy-crop";
 import { useUploadThing } from "@/lib/uploadthing";
 import getCroppedImg from "@/lib/utils";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { AiFillCamera } from "react-icons/ai";
 
-export default function ModalUploadImage() {
+interface Props {
+  imageUrl: string;
+}
+
+export default function ModalUploadImage({ imageUrl }: Props) {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   // state
@@ -61,7 +67,7 @@ export default function ModalUploadImage() {
   };
 
   const ctx = api.useContext();
-  const { mutate } = api.updatePhotoProfile.useMutation({
+  const { mutate } = api.user.updatePhotoProfile.useMutation({
     onSuccess: () => {
       toast.success("upload success");
       ctx.invalidate();
@@ -113,7 +119,24 @@ export default function ModalUploadImage() {
 
   return (
     <>
-      <Button onPress={onOpen}>Open Modal</Button>
+      <div
+        onClick={onOpen}
+        className={`group relative mt-5 cursor-pointer`}
+      >
+        <div className="absolute z-50 flex h-[200px] w-[200px] items-center justify-center rounded-full bg-default-100/30 opacity-0 backdrop-blur-[1px] transition-all group-hover:opacity-100">
+          <div className="flex flex-col items-center justify-center">
+            <AiFillCamera size={30} />
+            Change Image
+          </div>
+        </div>
+        <Image
+          src={imageUrl}
+          alt="profile image"
+          width={200}
+          height={200}
+          radius="full"
+        />
+      </div>
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
@@ -125,6 +148,16 @@ export default function ModalUploadImage() {
                 upload image
               </ModalHeader>
               <ModalBody>
+                <div
+                  className={`${image ? "hidden" : ""} relative h-auto w-auto`}
+                >
+                  <Image
+                    src={imageUrl}
+                    alt="profile image"
+                    width={400}
+                    height={400}
+                  />
+                </div>
                 <div className={`${!image ? "hidden" : "block"} relative`}>
                   <div className="crop-container">
                     <Cropper

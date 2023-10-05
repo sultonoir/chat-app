@@ -17,6 +17,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button, Input } from "@nextui-org/react";
 import Register from "./Register";
+import { BsGithub } from "react-icons/bs";
 
 const formSchema = z.object({
   email: z.string().min(2, {
@@ -72,15 +73,16 @@ const LoginForm = () => {
         <div className="grid grid-cols-2 gap-6">
           <Button
             color="primary"
-            variant="flat"
+            variant="light"
             onClick={() => signIn("github")}
+            startContent={<BsGithub />}
           >
             Github
           </Button>
           <Button
             className="hover:text-white"
             color="primary"
-            variant="flat"
+            variant="light"
           >
             Google
           </Button>
@@ -142,6 +144,7 @@ const LoginForm = () => {
               />
               <Button
                 disabled={isLoading}
+                isLoading={isLoading}
                 type="submit"
                 color="primary"
                 className="hover:bg-primary/80"
