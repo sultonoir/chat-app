@@ -5,7 +5,7 @@ import { ProviderNextui } from "../components/shared/ProviderNextui";
 import React from "react";
 
 import ProviderTrpc from "@/components/shared/ProviderTrpc";
-
+import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -25,7 +25,10 @@ export default async function RootLayout({
     >
       <body className={inter.className}>
         <ProviderTrpc>
-          <ProviderNextui>{children}</ProviderNextui>
+          <ProviderNextui>
+            <Toaster richColors />
+            {children}
+          </ProviderNextui>
         </ProviderTrpc>
       </body>
     </html>
