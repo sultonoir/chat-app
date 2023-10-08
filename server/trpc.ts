@@ -1,8 +1,9 @@
-import { TRPCError, initTRPC } from "@trpc/server";
-import { Session, getServerSession } from "next-auth";
+import { initTRPC, TRPCError } from "@trpc/server";
+import { getServerSession, type Session } from "next-auth";
+
 import { db } from "@/lib";
-import superjson from "superjson";
 import { ZodError } from "zod";
+import superjson from "superjson";
 
 type CreateContextOptions = {
   session: Session | null;
@@ -37,24 +38,18 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
   },
 });
 
-const middleware = t.middleware;
-
-const isAuth = middleware(async (opts) => {
-  const session = await getServerSession();
-  const user = session?.user;
-
-  if (!user || !user) {
+export const createTRPCRouter = t.router;
+export const publicProcedure = t.procedure;
+const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
+  if (!ctx.session || !ctx.session.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-
-  return opts.next({
+  return next({
     ctx: {
-      user,
-      db,
+      // infers the `session` as non-nullable
+      session: { ...ctx.session, user: ctx.session.user },
     },
   });
 });
 
-export const router = t.router;
-export const publicProcedure = t.procedure;
-export const privateProcedure = t.procedure.use(isAuth);
+export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);

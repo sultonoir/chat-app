@@ -1,8 +1,9 @@
-import { privateProcedure, router } from "./trpc";
+import { TRPCError } from "@trpc/server";
+import { protectedProcedure, createTRPCRouter, publicProcedure } from "./trpc";
 import { z } from "zod";
 
-export const ApiGroup = router({
-  createGroup: privateProcedure
+export const ApiGroup = createTRPCRouter({
+  createGroup: protectedProcedure
     .input(
       z.object({
         name: z.string(),
@@ -13,15 +14,70 @@ export const ApiGroup = router({
     .mutation(async ({ ctx, input }) => {
       const user = await ctx.db.user.findUnique({
         where: {
-          email: ctx.user.image as string,
+          email: ctx.session.user.email as string,
         },
       });
-      ctx.db.group.create({
+
+      if (!user) {
+        return null;
+      }
+      const member = [];
+      member.push(user.id);
+      const group = await ctx.db.group.create({
         data: {
-          userId: user?.id as string,
+          userId: user.id,
           name: input.name,
           image: input.image,
           desc: input.desc,
+          isAdmin: true,
+          member,
+        },
+      });
+      return group;
+    }),
+  getGroup: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { id } = input;
+      const group = ctx.db.group.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          message: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      });
+      if (!group) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "group not found" });
+      } else {
+        return group;
+      }
+    }),
+  createMessage: publicProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+        content: z.string().optional(),
+        fileUrl: z.string().optional(),
+        userId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { groupId, content, fileUrl, userId } = input;
+      await ctx.db.message.create({
+        data: {
+          groupId,
+          userId,
+          fileUrl,
+          content,
         },
       });
     }),

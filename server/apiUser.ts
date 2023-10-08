@@ -1,13 +1,17 @@
 import { TRPCError } from "@trpc/server";
-import { privateProcedure, publicProcedure, router } from "./trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "./trpc";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
-export const ApiUser = router({
-  getUser: privateProcedure.query(async ({ ctx }) => {
+export const ApiUser = createTRPCRouter({
+  getUser: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.db.user.findUnique({
       where: {
-        email: ctx.user.email as string,
+        email: ctx.session.user.email as string,
+      },
+      include: {
+        message: true,
+        group: true,
       },
     });
     if (!user) {
@@ -57,7 +61,7 @@ export const ApiUser = router({
         },
       });
     }),
-  updatePhotoProfile: privateProcedure
+  updatePhotoProfile: protectedProcedure
     .input(
       z.object({
         image: z.string(),
@@ -66,7 +70,7 @@ export const ApiUser = router({
     .mutation(async ({ ctx, input }) => {
       await ctx.db.user.update({
         where: {
-          email: ctx.user.email as string,
+          email: ctx.session.user.email as string,
         },
         data: {
           image: input.image,

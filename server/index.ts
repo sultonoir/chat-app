@@ -1,8 +1,8 @@
 import { ApiUser } from "./apiUser";
 import { ApiGroup } from "./apiGroup";
-import { router } from "./trpc";
+import { createTRPCRouter } from "./trpc";
 
-export const appRouter = router({
+export const appRouter = createTRPCRouter({
   user: ApiUser,
   group: ApiGroup,
 });

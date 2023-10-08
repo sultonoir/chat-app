@@ -3,15 +3,20 @@ import { ProviderNextui } from "@/components/shared/ProviderNextui";
 
 import ProviderTrpc from "@/components/shared/ProviderTrpc";
 import { Toaster } from "sonner";
-const Layout = ({ children }: { children: React.ReactNode }) => {
+import { getServerSession } from "next-auth";
+import SessionProvider from "@/components/shared/SessionProvider";
+const Layout = async ({ children }: { children: React.ReactNode }) => {
+  const session = await getServerSession();
   return (
     <>
-      <ProviderTrpc>
-        <ProviderNextui>
-          <Toaster richColors />
-          {children}
-        </ProviderNextui>
-      </ProviderTrpc>
+      <SessionProvider session={session}>
+        <ProviderTrpc>
+          <ProviderNextui>
+            <Toaster richColors />
+            {children}
+          </ProviderNextui>
+        </ProviderTrpc>
+      </SessionProvider>
     </>
   );
 };

@@ -31,6 +31,7 @@ const formSchema = z.object({
 
 const CreateGroup = () => {
   const [files, setFiles] = useState<File[]>([]);
+  const [isLoading, setisLoading] = useState(false);
   const group = useCreateGroup();
   const { startUpload } = useUploadThing("media");
 
@@ -44,7 +45,7 @@ const CreateGroup = () => {
   });
 
   const ctx = api.useContext();
-  const { mutate, isLoading } = api.group.createGroup.useMutation({
+  const { mutate } = api.group.createGroup.useMutation({
     onSuccess: () => {
       toast.success("Group created");
       form.reset();
@@ -59,20 +60,26 @@ const CreateGroup = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const blob = values.image_url;
-    const hasImageChanged = isBase64Image(blob);
-    if (hasImageChanged) {
-      const imgRes = await startUpload(files);
+    setisLoading(true);
+    try {
+      const blob = values.image_url;
+      const hasImageChanged = isBase64Image(blob);
+      if (hasImageChanged) {
+        const imgRes = await startUpload(files);
 
-      if (imgRes && imgRes[0].url) {
-        values.image_url = imgRes[0].url;
+        if (imgRes && imgRes[0].url) {
+          values.image_url = imgRes[0].url;
+        }
       }
+      mutate({
+        name: values.name,
+        image: values.image_url,
+        desc: values.desc,
+      });
+    } catch (error) {
+    } finally {
+      setisLoading(false);
     }
-    mutate({
-      name: values.name,
-      image: values.image_url,
-      desc: values.desc,
-    });
   };
 
   const handleImage = (
@@ -174,8 +181,8 @@ const CreateGroup = () => {
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <textarea
-                        className="m-0 min-h-0 w-full resize-none rounded-lg border-0 bg-default-100 pl-3 pr-10 focus:ring-transparent focus-visible:outline-none
-                        focus-visible:ring-transparent focus-visible:ring-offset-0 md:pl-4 md:pr-12"
+                        className="m-0 min-h-0 w-full resize-none rounded-lg border-0 bg-default-100 py-3 pl-3 pr-10 focus:ring-transparent
+                        focus-visible:outline-none focus-visible:ring-transparent focus-visible:ring-offset-0 md:pl-4 md:pr-12"
                         disabled={isLoading}
                         placeholder="description"
                         {...field}
@@ -187,6 +194,7 @@ const CreateGroup = () => {
               />
               <Button
                 disabled={isLoading}
+                isLoading={isLoading}
                 type="submit"
               >
                 Submit
