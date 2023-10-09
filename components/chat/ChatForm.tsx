@@ -2,6 +2,7 @@ import { api } from "@/lib/api";
 import { Button } from "@nextui-org/react";
 import React, { useState } from "react";
 import { BiSend } from "react-icons/bi";
+import ModalUploadForm from "../modal/ModalUploadForm";
 
 interface Props {
   userId: string;
@@ -11,9 +12,10 @@ interface Props {
 const ChatForm = ({ userId, groupId }: Props) => {
   const [chat, setChat] = useState<string>("");
   const ctx = api.useContext();
-  const { mutate } = api.group.createMessage.useMutation({
+  const { mutate, isLoading } = api.group.createMessage.useMutation({
     onSuccess: () => {
       ctx.group.getGroup.invalidate();
+      setChat("");
     },
   });
   const handleSubmit = () => {
@@ -32,60 +34,12 @@ const ChatForm = ({ userId, groupId }: Props) => {
         Your message
       </label>
       <div className="flex w-full items-center  bg-gray-50 px-3 py-2 dark:bg-bs">
-        <button
-          type="button"
-          className="inline-flex cursor-pointer justify-center rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-        >
-          <svg
-            className="h-5 w-5"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 20 18"
-          >
-            <path
-              fill="currentColor"
-              d="M13 5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0ZM7.565 7.423 4.5 14h11.518l-2.516-3.71L11 13 7.565 7.423Z"
-            />
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M18 1H2a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z"
-            />
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M13 5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0ZM7.565 7.423 4.5 14h11.518l-2.516-3.71L11 13 7.565 7.423Z"
-            />
-          </svg>
-          <span className="sr-only">Upload image</span>
-        </button>
-        <button
-          type="button"
-          className="cursor-pointer rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-        >
-          <svg
-            className="h-5 w-5"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 20 20"
-          >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M13.408 7.5h.01m-6.876 0h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM4.6 11a5.5 5.5 0 0 0 10.81 0H4.6Z"
-            />
-          </svg>
-          <span className="sr-only">Add emoji</span>
-        </button>
+        <ModalUploadForm
+          userId={userId}
+          groupId={groupId}
+        />
         <textarea
+          disabled={isLoading}
           id="chat"
           rows={1}
           value={chat}
@@ -94,9 +48,11 @@ const ChatForm = ({ userId, groupId }: Props) => {
           placeholder="Your message..."
         ></textarea>
         <Button
+          isLoading={isLoading}
+          disabled={isLoading}
           onClick={handleSubmit}
           isIconOnly
-          className="inline-flex cursor-pointer justify-center rounded-full p-2 text-blue-600 hover:bg-blue-100 dark:text-blue-500 dark:hover:bg-gray-600"
+          className="inline-flex cursor-pointer justify-center rounded-full p-2 text-gray-600 hover:bg-blue-100 dark:text-gray-400 dark:hover:bg-gray-600"
         >
           <BiSend size={20} />
           <span className="sr-only">Send message</span>

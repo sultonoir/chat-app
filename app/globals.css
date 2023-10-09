@@ -68,6 +68,7 @@
 
 .crop-container {
   height: 600px;
+  width: 600px;
 }
 
 .controls {
@@ -76,4 +77,28 @@
   width: 600px;
   position: absolute;
   bottom: -15px;
+}
+
+#chat::-webkit-scrollbar {
+  width: 0.5em; /* Lebar scrollbar */
+}
+
+#chat::-webkit-scrollbar-thumb {
+  background-color: #374045; /* Warna latar belakang thumb (panah) scrollbar */
+}
+
+#chat::-webkit-scrollbar-track {
+  background: transparent; /* Warna latar belakang scrollbar track */
+}
+
+#form::-webkit-scrollbar {
+  width: 0.5em; /* Lebar scrollbar */
+}
+
+#form::-webkit-scrollbar-thumb {
+  background-color: #aebac1; /* Warna latar belakang thumb (panah) scrollbar */
+}
+
+#form::-webkit-scrollbar-track {
+  background: transparent; /* Warna latar belakang scrollbar track */
 }

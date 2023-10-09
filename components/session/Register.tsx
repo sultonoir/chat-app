@@ -42,6 +42,9 @@ const Register = () => {
       toast.success("account created");
       form.reset();
     },
+    onError({ message }) {
+      toast.error(message);
+    },
   });
   function onSubmit(values: z.infer<typeof formSchema>) {
     mutate({

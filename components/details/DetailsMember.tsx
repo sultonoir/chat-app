@@ -7,7 +7,7 @@ interface DetailsMemberProps extends React.HTMLAttributes<HTMLDivElement> {
   imageUrl: string;
   name: string;
   etc?: string;
-  admin?: string;
+  admin?: boolean;
   sendAt?: Date;
   sender?: string | null;
   active?: boolean;
@@ -28,8 +28,6 @@ const DetailsMember: React.FC<DetailsMemberProps> = ({
   className,
   ...Props
 }) => {
-  const isAdmin = admin === "admin";
-
   const formatDateString = (dateString: Date | undefined | null) => {
     if (!dateString) {
       return null;
@@ -91,7 +89,7 @@ const DetailsMember: React.FC<DetailsMemberProps> = ({
           <div className="flex grow flex-wrap items-center break-words text-left font-normal leading-normal text-default-800">
             {name}
           </div>
-          {isAdmin && (
+          {admin && (
             <div className="ml-[6px] mt-[3px] max-w-[100%] text-ellipsis whitespace-nowrap text-xs leading-[14px] ">
               <div className="flex items-center rounded-sm bg-[#2a3942] px-[5px] py-[1.5px]">
                 Admin Group
@@ -106,7 +104,7 @@ const DetailsMember: React.FC<DetailsMemberProps> = ({
             </div>
           )}
         </div>
-        <div className="mt-[2px] flex min-h-[20px] overflow-x-hidden text-xs">
+        <div className="mt-[-4px] flex min-h-[20px] overflow-x-hidden text-xs">
           {etc && (
             <div className="max-w-xs grow truncate font-normal leading-5 dark:text-[#8696a0]">
               {etc}

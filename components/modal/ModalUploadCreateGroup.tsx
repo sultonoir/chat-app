@@ -11,17 +11,16 @@ import {
   Image,
 } from "@nextui-org/react";
 import Cropper from "react-easy-crop";
-import { useUploadThing } from "@/lib/uploadthing";
 import getCroppedImg from "@/lib/utils";
-import { api } from "@/lib/api";
-import { toast } from "sonner";
 import { AiFillCamera } from "react-icons/ai";
+import { UsersIcon } from "lucide-react";
 
 interface Props {
   imageUrl: string;
+  onChange: (value: string) => void;
 }
 
-export default function ModalUploadImage({ imageUrl }: Props) {
+export default function ModalUploadCreateGroup({ imageUrl, onChange }: Props) {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   // state
@@ -30,9 +29,6 @@ export default function ModalUploadImage({ imageUrl }: Props) {
   const [crop, setCrop] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
-
-  //  uploadthing
-  const { startUpload } = useUploadThing("media");
 
   // croped
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<{
@@ -66,54 +62,22 @@ export default function ModalUploadImage({ imageUrl }: Props) {
     }
   };
 
-  const ctx = api.useContext();
-  const { mutate } = api.user.updatePhotoProfile.useMutation({
-    onSuccess: () => {
-      toast.success("upload success");
-      ctx.invalidate();
-      onClose();
-    },
-  });
-
-  const handleSubmit = async () => {
+  const showCroppedImage = async () => {
     setIsLoading(true);
-
     try {
-      // Menjalankan showCroppedImage untuk mendapatkan croppedImage
-      let imgCrop;
-      if (image && croppedAreaPixels) {
-        const croppedImg = await getCroppedImg(
+      if (croppedAreaPixels) {
+        const croppedImage = await getCroppedImg(
           image,
           croppedAreaPixels,
           rotation
         );
-        imgCrop = croppedImg;
+        onChange(croppedImage ?? "");
       }
-      // Mendapatkan blob dari croppedImage
-      const blob = await fetch(imgCrop as string).then((res) => res.blob());
-
-      // Mendapatkan tipe MIME dari blob
-      const mimeType = blob.type;
-
-      // Membuat nama file berdasarkan tipe MIME
-      const fileExtension = mimeType.split("/")[1];
-      const fileName = `file_${Date.now()}.${fileExtension}`;
-
-      // Membuat objek File dari blob dengan nama dan tipe otomatis
-      const file = new File([blob], fileName, { type: mimeType });
-
-      let imgUpload;
-      const imgRes = await startUpload([file]);
-      if (imgRes && imgRes[0].url) {
-        imgUpload = imgRes[0].url;
-      }
-      mutate({
-        image: imgUpload as string,
-      });
-    } catch (error) {
-      throw new Error(`${String(error)}`);
+    } catch (e) {
+      console.error(e);
     } finally {
       setIsLoading(false);
+      onClose();
     }
   };
 
@@ -121,26 +85,32 @@ export default function ModalUploadImage({ imageUrl }: Props) {
     <>
       <div
         onClick={onOpen}
-        className={`group relative mt-5 cursor-pointer`}
+        className={`group relative mt-5 flex cursor-pointer items-center justify-center`}
       >
-        <div className="absolute z-50 flex h-[200px] w-[200px] items-center justify-center rounded-full bg-default-100/30 opacity-0 backdrop-blur-[1px] transition-all group-hover:opacity-100">
-          <div className="flex flex-col items-center justify-center">
+        <div className="absolute z-50 flex h-[210px] w-[210px] items-center justify-center rounded-full bg-default-100/30 opacity-0 backdrop-blur-[1px] transition-all group-hover:opacity-100">
+          <div className="mx-auto flex flex-col items-center justify-center">
             <AiFillCamera size={30} />
             Change Image
           </div>
         </div>
-        <Image
-          src={imageUrl}
-          alt="profile image"
-          width={200}
-          height={200}
-          radius="full"
-        />
+        <div className="relative mx-auto flex h-52 w-52 cursor-pointer items-center justify-center rounded-full">
+          {imageUrl !== "" ? (
+            <Image
+              src={imageUrl}
+              width={200}
+              height={200}
+              alt="create Group"
+              radius="full"
+            />
+          ) : (
+            <UsersIcon size={52} />
+          )}
+        </div>
       </div>
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        size="2xl"
+        size="3xl"
       >
         <ModalContent>
           {(onClose) => (
@@ -149,18 +119,6 @@ export default function ModalUploadImage({ imageUrl }: Props) {
                 upload image
               </ModalHeader>
               <ModalBody>
-                <div
-                  className={`${
-                    image ? "hidden" : ""
-                  } relative mx-auto h-auto w-auto`}
-                >
-                  <Image
-                    src={imageUrl}
-                    alt="profile image"
-                    width={400}
-                    height={400}
-                  />
-                </div>
                 <div className={`${!image ? "hidden" : "block"} relative`}>
                   <div className="crop-container">
                     <Cropper
@@ -198,7 +156,7 @@ export default function ModalUploadImage({ imageUrl }: Props) {
                   color="primary"
                   isLoading={isLoading}
                   isDisabled={isLoading}
-                  onClick={handleSubmit}
+                  onClick={showCroppedImage}
                 >
                   Action
                 </Button>

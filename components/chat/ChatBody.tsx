@@ -2,6 +2,7 @@ import { type Message, type User } from "@prisma/client";
 import React, { useEffect, useRef } from "react";
 
 import Image from "next/image";
+import { FileIcon } from "lucide-react";
 
 interface Props {
   directMesg: Array<
@@ -14,7 +15,6 @@ interface Props {
 }
 
 const ChatBody: React.FC<Props> = ({ directMesg, id, isGroup }) => {
-  console.log(directMesg);
   const chatBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,11 +61,19 @@ const ChatBody: React.FC<Props> = ({ directMesg, id, isGroup }) => {
               );
             case "pdf":
               return (
-                <iframe
-                  src={`https://docs.google.com/viewer?url=${namaFile}&embedded=true`}
-                  title="Dokumen PDF"
-                  className="h-full max-h-max"
-                ></iframe>
+                <div className="relative mt-2 flex items-center rounded-md p-2">
+                  <>
+                    <FileIcon className="h-10 w-10 fill-rose-200 stroke-rose-400" />
+                    <a
+                      href={namaFile}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-2 text-sm text-rose-500 hover:underline dark:text-rose-400"
+                    >
+                      pdf
+                    </a>
+                  </>
+                </div>
               );
             default:
               return "Tipe tidak dikenal";
@@ -100,7 +108,7 @@ const ChatBody: React.FC<Props> = ({ directMesg, id, isGroup }) => {
               )}
 
               {chat.fileUrl && (
-                <div className="relative h-[200px]">
+                <div className="relative h-auto">
                   {deteksiJenisFile(chat.fileUrl)}
                 </div>
               )}

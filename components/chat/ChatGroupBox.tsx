@@ -5,6 +5,7 @@ import { User } from "@prisma/client";
 import React from "react";
 import ChatForm from "./ChatForm";
 import ChatBody from "./ChatBody";
+import useProfileGroup from "@/hooks/useProfileGroup";
 
 interface Props {
   user: User;
@@ -15,6 +16,7 @@ const ChatGroupBox = ({ user }: Props) => {
   const { data: chat, isLoading } = api.group.getGroup.useQuery({
     id: ChatGroup.groupId,
   });
+  const profileGroup = useProfileGroup();
   return (
     <>
       {ChatGroup.isOpen && (
@@ -31,7 +33,10 @@ const ChatGroupBox = ({ user }: Props) => {
               ) : (
                 <>
                   <div className="flex w-full items-center justify-between bg-bs px-5 py-2">
-                    <div className="flex cursor-pointer flex-row items-center gap-x-3">
+                    <div
+                      onClick={() => profileGroup.onOpen({ group: chat })}
+                      className="flex cursor-pointer flex-row items-center gap-x-3"
+                    >
                       <Avatar
                         src={chat.image}
                         alt={chat.name}

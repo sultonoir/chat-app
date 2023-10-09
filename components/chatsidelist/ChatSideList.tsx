@@ -17,19 +17,17 @@ const ChatSideList = ({ user, message, group }: Props) => {
       className="relative flex grow flex-col overflow-y-auto"
     >
       <div className="flex w-full flex-col">
-        <div className="flex flex-row">
-          {group?.map((item) => {
-            return (
-              <DetailsMember
-                key={item.id}
-                imageUrl={item.image}
-                name={item.name}
-                onClick={() => ChatGroup.onOpen({ groupId: item.id })}
-                etc={item.desc || ""}
-              />
-            );
-          })}
-        </div>
+        {group?.map((item) => {
+          return (
+            <DetailsMember
+              key={item.id}
+              imageUrl={item.image}
+              name={item.name}
+              onClick={() => ChatGroup.onOpen({ groupId: item.id })}
+              etc={item.desc || ""}
+            />
+          );
+        })}
       </div>
     </div>
   );
