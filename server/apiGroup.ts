@@ -21,8 +21,6 @@ export const ApiGroup = createTRPCRouter({
       if (!user) {
         return null;
       }
-      const member = [];
-      member.push(user.id);
       const group = await ctx.db.group.create({
         data: {
           userId: user.id,
@@ -30,7 +28,11 @@ export const ApiGroup = createTRPCRouter({
           image: input.image,
           desc: input.desc,
           isAdmin: true,
-          member,
+          member: {
+            create: {
+              userId: user.id,
+            },
+          },
         },
       });
       return group;
@@ -49,6 +51,11 @@ export const ApiGroup = createTRPCRouter({
         },
         include: {
           message: {
+            include: {
+              user: true,
+            },
+          },
+          member: {
             include: {
               user: true,
             },
@@ -80,6 +87,15 @@ export const ApiGroup = createTRPCRouter({
           userId,
           fileUrl,
           content,
+        },
+      });
+      await ctx.db.member.updateMany({
+        where: {
+          userId,
+          groupId,
+        },
+        data: {
+          updatedAt: new Date(),
         },
       });
     }),

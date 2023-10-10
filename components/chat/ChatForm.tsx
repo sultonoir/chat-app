@@ -16,14 +16,16 @@ const ChatForm = ({ userId, groupId, isGroup }: Props) => {
   const { mutate, isLoading } = api.group.createMessage.useMutation({
     onSuccess: () => {
       ctx.group.getGroup.invalidate();
+      ctx.user.getUser.invalidate();
       setChat("");
     },
   });
 
   const { mutate: createChat, isLoading: loading } =
-    api.group.createMessage.useMutation({
+    api.user.createMessage.useMutation({
       onSuccess: () => {
         ctx.user.getChat.invalidate();
+        ctx.user.getUser.invalidate();
         setChat("");
       },
     });
@@ -54,6 +56,7 @@ const ChatForm = ({ userId, groupId, isGroup }: Props) => {
         <ModalUploadForm
           userId={userId}
           groupId={groupId}
+          isGroup={isGroup}
         />
         <textarea
           disabled={isLoading}

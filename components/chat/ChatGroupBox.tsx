@@ -6,7 +6,6 @@ import React from "react";
 import ChatForm from "./ChatForm";
 import ChatBody from "./ChatBody";
 import useProfileGroup from "@/hooks/useProfileGroup";
-import DetailsFindMember from "../details/DetailsFindMember";
 
 interface Props {
   user: User;
@@ -18,9 +17,6 @@ const ChatGroupBox = ({ user }: Props) => {
     id: ChatGroup.groupId,
   });
   const profileGroup = useProfileGroup();
-  const member = chat?.member.map((e) => ({
-    id: e,
-  }));
   return (
     <>
       {ChatGroup.isOpen && (
@@ -49,16 +45,15 @@ const ChatGroupBox = ({ user }: Props) => {
                       />
                       <div className="flex flex-col">
                         <h5 className="text-base font-semibold">{chat.name}</h5>
-                        <div className="mt-[-5px] flex">
-                          {member &&
-                            member.map((item) => (
-                              <DetailsFindMember
-                                memberId={item.id}
-                                isChatBox
-                                userId={user.id}
-                                key={item.id}
-                              />
-                            ))}
+                        <div className="mt-[-1px] flex">
+                          {chat.member.slice(0, 10).map((item) => (
+                            <p
+                              key={item.id}
+                              className="text-xs dark:text-[#8696a0]"
+                            >
+                              {item.user.username},
+                            </p>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -66,10 +61,12 @@ const ChatGroupBox = ({ user }: Props) => {
                   <ChatBody
                     directMesg={chat.message}
                     id={user.id}
+                    isGroup
                   />
                   <ChatForm
                     userId={user.id}
                     groupId={chat.id}
+                    isGroup
                   />
                 </>
               )}

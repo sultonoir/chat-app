@@ -10,8 +10,20 @@ export const ApiUser = createTRPCRouter({
         email: ctx.session.user.email as string,
       },
       include: {
-        message: true,
-        group: true,
+        member: {
+          orderBy: {
+            updatedAt: "desc",
+          },
+        },
+      },
+    });
+    await ctx.db.user.update({
+      where: {
+        id: user?.id,
+      },
+      data: {
+        lastSeen: new Date(),
+        online: true,
       },
     });
     if (!user) {
@@ -58,24 +70,20 @@ export const ApiUser = createTRPCRouter({
           hashedPassword,
           username,
           name,
+          status: "https://github.com/sultonoir",
         },
       });
-      const group = await ctx.db.group.findUnique({
-        where: {
-          id: "65236299e43bef29922b94a8",
-        },
-      });
-      if (!group) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "group not found" });
-      }
-      const member = [...(group.member || [])];
-      member.push(user.id);
+
       await ctx.db.group.update({
         where: {
-          id: "65236299e43bef29922b94a8",
+          id: "6524e94a0c5f45b186422f58",
         },
         data: {
-          member,
+          member: {
+            create: {
+              userId: user.id,
+            },
+          },
         },
       });
     }),
@@ -134,6 +142,18 @@ export const ApiUser = createTRPCRouter({
             senderId: cureenUserId,
           },
         });
+        await ctx.db.member.createMany({
+          data: [
+            {
+              userId: cureenUserId,
+              chatId: chat.id, // Sertakan chatId yang sesuai
+            },
+            {
+              userId,
+              chatId: chat.id, // Sertakan chatId yang sesuai
+            },
+          ],
+        });
         return chat.id;
       }
     }),
@@ -183,5 +203,51 @@ export const ApiUser = createTRPCRouter({
           content,
         },
       });
+      await ctx.db.member.updateMany({
+        where: {
+          userId,
+          chatId,
+        },
+        data: {
+          updatedAt: new Date(),
+        },
+      });
+    }),
+  findChat: publicProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        currentId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { currentId, userId } = input;
+      const chat = await ctx.db.chat.findFirst({
+        where: {
+          OR: [
+            {
+              senderId: currentId,
+              receiverId: userId,
+            },
+            {
+              senderId: userId,
+              receiverId: currentId,
+            },
+          ],
+        },
+        include: {
+          sender: true,
+          receiver: true,
+          message: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      });
+      if (!chat) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "chat not found" });
+      }
+      return chat;
     }),
 });

@@ -17,10 +17,10 @@ import { toast } from "sonner";
 interface Props {
   groupId?: string;
   userId: string;
-  isChat?: boolean;
+  isGroup?: boolean;
 }
 
-export default function ModalUploadForm({ groupId, userId, isChat }: Props) {
+export default function ModalUploadForm({ groupId, userId, isGroup }: Props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [file, setFile] = useState<File | null>(null);
   const [chat, setChat] = useState<string>("");
@@ -48,6 +48,16 @@ export default function ModalUploadForm({ groupId, userId, isChat }: Props) {
   const { mutate } = api.group.createMessage.useMutation({
     onSuccess: () => {
       ctx.group.getGroup.invalidate();
+      ctx.user.getUser.invalidate();
+      setChat("");
+      onClose();
+      setFile(null);
+    },
+  });
+  const { mutate: createChat } = api.user.createMessage.useMutation({
+    onSuccess: () => {
+      ctx.user.getChat.invalidate();
+      ctx.user.getUser.invalidate();
       setChat("");
       onClose();
       setFile(null);
@@ -58,12 +68,21 @@ export default function ModalUploadForm({ groupId, userId, isChat }: Props) {
     setIsLoading(true);
     try {
       const uploadthing = await startUpload(files);
-      mutate({
-        groupId: groupId ?? "",
-        content: chat,
-        userId,
-        fileUrl: uploadthing?.[0].url,
-      });
+      if (isGroup) {
+        mutate({
+          groupId: groupId ?? "",
+          content: chat,
+          userId,
+          fileUrl: uploadthing?.[0].url,
+        });
+      } else {
+        createChat({
+          chatId: groupId ?? "",
+          content: chat,
+          userId,
+          fileUrl: uploadthing?.[0].url,
+        });
+      }
     } catch (error) {
       toast.error(error as string);
     } finally {
@@ -137,14 +156,25 @@ export default function ModalUploadForm({ groupId, userId, isChat }: Props) {
             />
           </ModalBody>
           <ModalFooter>
-            <Button
-              color="primary"
-              onPress={handleSubmit}
-              disabled={isLoading}
-              isLoading={isLoading}
-            >
-              Action
-            </Button>
+            {isGroup ? (
+              <Button
+                color="primary"
+                onPress={handleSubmit}
+                disabled={isLoading}
+                isLoading={isLoading}
+              >
+                Action
+              </Button>
+            ) : (
+              <Button
+                color="primary"
+                onPress={handleSubmit}
+                disabled={isLoading}
+                isLoading={isLoading}
+              >
+                Action
+              </Button>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>

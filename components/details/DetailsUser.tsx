@@ -11,9 +11,10 @@ import { api } from "@/lib/api";
 interface Props {
   currentUserId: string;
   userId: string;
+  isChat?: boolean;
 }
 
-export default function DetailsUser({ userId, currentUserId }: Props) {
+export default function DetailsUser({ userId, currentUserId, isChat }: Props) {
   const { data } = api.group.findMember.useQuery({
     memberId: userId,
   });
@@ -27,20 +28,24 @@ export default function DetailsUser({ userId, currentUserId }: Props) {
       }}
     >
       <PopoverTrigger>
-        <User
-          classNames={{
-            base: "justify-start rounded-none p-4 hover:bg-bgchat",
-            description: "dark:text-[#8696a0]",
-            wrapper: "px-2",
-          }}
-          as="button"
-          name={data?.name}
-          description={data?.status}
-          className="transition-transform"
-          avatarProps={{
-            src: `${data?.image}`,
-          }}
-        />
+        {isChat ? (
+          <h4 className="text-pink-700">@{data?.username}</h4>
+        ) : (
+          <User
+            classNames={{
+              base: "justify-start rounded-none p-4 hover:bg-bgchat",
+              description: "dark:text-[#8696a0]",
+              wrapper: "px-2",
+            }}
+            as="button"
+            name={data?.name}
+            description={data?.status}
+            className="transition-transform"
+            avatarProps={{
+              src: `${data?.image}`,
+            }}
+          />
+        )}
       </PopoverTrigger>
       <PopoverContent className="p-1">
         {data && (

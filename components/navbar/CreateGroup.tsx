@@ -93,7 +93,7 @@ const CreateGroup = () => {
     <>
       {group.isOpen && (
         <div className="absolute top-0 z-10 h-screen w-full  flex-col gap-y-5 overflow-hidden bg-bgsearch">
-          <div className="h-28 bg-bgchat p-5">
+          <div className="h-28 bg-bs p-5">
             <div className="flex h-full w-full flex-row items-end">
               <div className="flex flex-row items-center justify-center gap-x-3">
                 <ArrowLeft

@@ -2,7 +2,11 @@ import { type Message, type User } from "@prisma/client";
 import React, { useEffect, useRef } from "react";
 import { FileIcon } from "lucide-react";
 import { Image } from "@nextui-org/react";
+import dayjs from "dayjs";
+import calendar from "dayjs/plugin/calendar";
+import DetailsUser from "../details/DetailsUser";
 
+dayjs.extend(calendar);
 interface Props {
   directMesg:
     | Array<
@@ -103,7 +107,11 @@ const ChatBody: React.FC<Props> = ({ directMesg, id, isGroup }) => {
               {isGroup && (
                 <>
                   {chat.userId !== id && (
-                    <h4 className="text-pink-700">@{chat.user.name}</h4>
+                    <DetailsUser
+                      userId={chat.userId}
+                      currentUserId={id ?? ""}
+                      isChat
+                    />
                   )}
                 </>
               )}
@@ -127,7 +135,9 @@ const ChatBody: React.FC<Props> = ({ directMesg, id, isGroup }) => {
                 className={`${
                   chat.fileUrl && "mt-1"
                 } text-xs text-foreground/50`}
-              ></p>
+              >
+                {`${dayjs(chat.updatedAt).calendar()}`}
+              </p>
             </div>
           </div>
         );

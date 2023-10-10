@@ -1,11 +1,14 @@
 import useChatUser from "@/hooks/useChatUser";
 import { User } from "@prisma/client";
 import React from "react";
-import { Avatar } from "@nextui-org/react";
+import { Avatar, Button } from "@nextui-org/react";
 import ChatBody from "./ChatBody";
 import ChatForm from "./ChatForm";
 import { api } from "@/lib/api";
-
+import { BiUserPlus } from "react-icons/bi";
+import dayjs from "dayjs";
+import fromNow from "dayjs/plugin/relativeTime";
+dayjs.extend(fromNow);
 interface Props {
   user: User;
 }
@@ -44,8 +47,26 @@ const ChatUser = ({ user }: Props) => {
                         <h5 className="text-base font-semibold">
                           {other?.name ?? ""}
                         </h5>
+                        {other?.lastSeen?.getMinutes ===
+                        new Date().getMinutes ? (
+                          <p className="text-xs text-slate-500">Online</p>
+                        ) : (
+                          <p>
+                            <p className="text-xs text-slate-500">
+                              {`${dayjs(user?.lastSeen).fromNow()}`}
+                            </p>
+                          </p>
+                        )}
                       </div>
                     </div>
+                    <Button
+                      isIconOnly
+                      disabled
+                      variant="solid"
+                      color="primary"
+                    >
+                      <BiUserPlus size={20} />
+                    </Button>
                   </div>
                   <ChatBody
                     directMesg={chat.message}

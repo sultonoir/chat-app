@@ -103,7 +103,10 @@ export default function ModalUploadCreateGroup({ imageUrl, onChange }: Props) {
               radius="full"
             />
           ) : (
-            <UsersIcon size={52} />
+            <UsersIcon
+              size={52}
+              className="transition-all group-hover:hidden"
+            />
           )}
         </div>
       </div>

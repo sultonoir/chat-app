@@ -1,33 +1,31 @@
-import { Group, Message, User as mem } from "@prisma/client";
+import { Member, User as mem } from "@prisma/client";
 import React from "react";
-import DetailsMember from "../details/DetailsMember";
-import useChatGroup from "@/hooks/useChatGroup";
+import ChatSideGroup from "./ChatSideGroup";
+import ChatSideUser from "./ChatSideUser";
 
 type Props = {
   user: mem;
-  message: Message[];
-  group?: Group[];
+  member: Member[];
 };
 
-const ChatSideList = ({ user, message, group }: Props) => {
-  const ChatGroup = useChatGroup();
+const ChatSideList = ({ user, member }: Props) => {
   return (
     <div
       id="chat"
       className="relative flex grow flex-col overflow-y-auto"
     >
       <div className="flex w-full flex-col">
-        {group?.map((item) => {
-          return (
-            <DetailsMember
-              key={item.id}
-              imageUrl={item.image}
-              name={item.name}
-              onClick={() => ChatGroup.onOpen({ groupId: item.id })}
-              etc={item.desc || ""}
-            />
-          );
-        })}
+        {member.map((item) => (
+          <React.Fragment key={item.id}>
+            {item.groupId && <ChatSideGroup id={item.groupId} />}
+            {item.chatId && (
+              <ChatSideUser
+                chatId={item.chatId}
+                userId={user.id}
+              />
+            )}
+          </React.Fragment>
+        ))}
       </div>
     </div>
   );

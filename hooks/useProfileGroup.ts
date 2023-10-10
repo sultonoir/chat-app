@@ -1,26 +1,46 @@
-import { Group, Message } from "@prisma/client";
+import { Group, Member, Message, User } from "@prisma/client";
 import { create } from "zustand";
 
 interface Props {
-  group: Group & {
-    message: Message[];
-  };
+  group:
+    | (Group & {
+        message: Array<
+          Message & {
+            user: User;
+          }
+        >;
+        member: Array<
+          Member & {
+            user: User;
+          }
+        >;
+      })
+    | undefined;
 }
 
 interface ProfileGroupStore {
   isOpen: boolean;
   group:
     | (Group & {
-        message: Message[];
+        message: Array<
+          Message & {
+            user: User;
+          }
+        >;
+        member: Array<
+          Member & {
+            user: User;
+          }
+        >;
       })
-    | null;
+    | undefined;
   onOpen: ({ group }: Props) => void;
   onClose: () => void;
 }
 
 const useProfileGroup = create<ProfileGroupStore>((set) => ({
   isOpen: false,
-  group: null,
+  group: undefined,
   onOpen: ({ group }) => set({ isOpen: true, group }),
   onClose: () => set({ isOpen: false }),
 }));

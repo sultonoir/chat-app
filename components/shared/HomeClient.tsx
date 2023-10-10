@@ -32,8 +32,7 @@ const HomeClient = () => {
             <Navbar user={data} />
             <ChatSideList
               user={data}
-              message={data.message}
-              group={data.group}
+              member={data.member}
             />
             {createGroup && <CreateGroup />}
             {profile && <Profile user={data} />}

@@ -8,23 +8,34 @@ datasource db {
 }
 
 model User {
-  id              String @id @default(auto()) @map("_id") @db.ObjectId
-  name            String?
-  email           String?   @unique
-  username        String?   @unique
-  lastSeen        DateTime?
-  online          Boolean?  @default(false)
-  status          String?
-  emailVerified   DateTime?
-  image           String?
-  hashedPassword  String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  accounts        Account[]
-  group           Group[]
-  message         Message[]
-  chatSender      Chat[] @relation("sender")
-  chatReceiver    Chat[] @relation("receiver")
+  id                String      @id @default(auto()) @map("_id") @db.ObjectId
+  name              String?
+  email             String?     @unique
+  username          String?     @unique
+  lastSeen          DateTime?
+  online            Boolean?    @default(false)
+  status            String?
+  emailVerified     DateTime?
+  image             String?
+  hashedPassword    String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  accounts          Account[]
+  group             Group[]
+  message           Message[]
+  member            Member[]
+  chatSender        Chat[]      @relation("sender")
+  chatReceiver      Chat[]      @relation("receiver")
+  friendSender      Friend[]    @relation("sender")
+  frinedReceiver    Friend[]    @relation("receiver")
+}
+
+model Friend {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  senderId        String   @db.ObjectId
+  receiverId      String   @db.ObjectId
+  sender          User     @relation("sender",fields: [senderId], references: [id], onDelete: Cascade)
+  receiver        User     @relation("receiver",fields: [receiverId], references: [id], onDelete: Cascade)
 }
 
 model Account {
@@ -47,6 +58,7 @@ model Account {
 model Chat{
   id String @id @default(auto()) @map("_id") @db.ObjectId
   message         Message[]
+  member          Member[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   senderId        String   @db.ObjectId
@@ -63,12 +75,23 @@ model Group{
   isAdmin           Boolean  @default(true)
   userId            String   @db.ObjectId
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  member          String[]  @db.ObjectId
   message         Message[]
+  member          Member[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
 
+model Member {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  groupId           String?  @db.ObjectId
+  chatId            String?  @db.ObjectId
+  userId            String   @db.ObjectId
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chat              Chat?    @relation(fields: [chatId],references: [id],onDelete: Cascade)
+  group             Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
 
 
 model Message{

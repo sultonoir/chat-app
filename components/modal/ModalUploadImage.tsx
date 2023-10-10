@@ -130,7 +130,7 @@ export default function ModalUploadImage({ imageUrl }: Props) {
           </div>
         </div>
         <Image
-          src={imageUrl}
+          src={imageUrl || "/Logo.png"}
           alt="profile image"
           width={200}
           height={200}

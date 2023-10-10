@@ -4,7 +4,6 @@ import { User } from "@prisma/client";
 import { ChevronRightIcon, FileIcon, XIcon } from "lucide-react";
 import React from "react";
 import DetailsMember from "../details/DetailsMember";
-import DetailsUser from "../details/DetailsUser";
 
 interface Props {
   user: User;
@@ -12,12 +11,10 @@ interface Props {
 
 const ProfileGroup = ({ user }: Props) => {
   const profileGroup = useProfileGroup();
+  const group = profileGroup.group;
+  const member = profileGroup.group?.member.filter((e) => e.userId !== user.id);
   const media = profileGroup.group?.message.filter((e) => e.fileUrl);
-
-  const member = profileGroup.group?.member.map((item) => ({
-    id: item,
-  }));
-
+  const admin = profileGroup.group?.userId === user.id;
   function deteksiJenisFile(namaFile: string) {
     const ekstensi = namaFile.split(".").pop()?.toLowerCase();
     switch (ekstensi) {
@@ -70,12 +67,15 @@ const ProfileGroup = ({ user }: Props) => {
         <div className="relative flex basis-[30%] flex-col border-l border-default-200">
           <div
             onClick={profileGroup.onClose}
-            className="flex h-[56px] cursor-pointer flex-row items-center bg-bgchat py-3 pl-3"
+            className="flex h-[56px] cursor-pointer flex-row items-center bg-bs py-3 pl-3"
           >
             <XIcon size={30} />
             <p>Profile</p>
           </div>
-          <div className="flex grow flex-col gap-y-5 overflow-y-auto ">
+          <div
+            id="chat"
+            className="flex grow flex-col gap-y-5 overflow-y-auto "
+          >
             <div className="flex flex-col items-center justify-between gap-y-5 bg-bgsearch py-5">
               <Image
                 src={profileGroup.group?.image}
@@ -86,7 +86,7 @@ const ProfileGroup = ({ user }: Props) => {
               />
               <h3 className="text-2xl">{profileGroup.group?.name}</h3>
               <p>
-                Group <span>{profileGroup.group?.member.length}</span> member
+                Group <span>{group?.member.length}</span> member
               </p>
             </div>
             <div className="w-full bg-bgsearch py-2 pl-7 pr-2">
@@ -117,22 +117,22 @@ const ProfileGroup = ({ user }: Props) => {
             </div>
             <div className="flex flex-col bg-bgsearch py-2">
               <div className="flex justify-between px-4">
-                <p className="text-base">{member?.length} Member</p>
+                <p className="text-base">{group?.member.length} Member</p>
               </div>
               <DetailsMember
                 imageUrl={user.image ?? ""}
                 name="Me"
                 etc={user.email ?? ""}
-                admin={profileGroup.group?.isAdmin}
+                admin={admin}
               />
-              {member &&
-                member.map((item) => (
-                  <DetailsUser
-                    currentUserId={user.id}
-                    userId={item.id}
-                    key={item.id}
-                  />
-                ))}
+              {member?.map((item) => (
+                <DetailsMember
+                  key={item.id}
+                  imageUrl={item.user.image ?? ""}
+                  name={item.user.username ?? ""}
+                  etc={item.user.status ?? ""}
+                />
+              ))}
             </div>
           </div>
         </div>

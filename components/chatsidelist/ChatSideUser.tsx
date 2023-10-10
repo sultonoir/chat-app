@@ -2,16 +2,21 @@ import { api } from "@/lib/api";
 import React from "react";
 import DetailsMember from "../details/DetailsMember";
 import useChatGroup from "@/hooks/useChatGroup";
+import useChatUser from "@/hooks/useChatUser";
 
 type Props = {
-  id: string;
+  userId: string;
+  chatId: string;
 };
 
-const ChatSideGroup = ({ id }: Props) => {
+const ChatSideUser = ({ userId, chatId }: Props) => {
   const chatGroup = useChatGroup();
-  const { data, isLoading } = api.group.getGroup.useQuery({
-    id,
+  const chatUser = useChatUser();
+  const { data, isLoading } = api.user.getChat.useQuery({
+    chatId,
   });
+
+  const other = userId === data?.senderId ? data.receiver : data?.sender;
   const message = data?.message;
   const lastChat = message && message[message?.length - 1];
   return (
@@ -24,13 +29,16 @@ const ChatSideGroup = ({ id }: Props) => {
             <>no data</>
           ) : (
             <DetailsMember
-              imageUrl={data.image ?? ""}
-              name={data.name}
+              imageUrl={other?.image ?? ""}
+              name={other?.name ?? ""}
               sendAt={lastChat?.createdAt}
               sender={lastChat?.user.username}
               fileUrl={lastChat?.fileUrl}
               message={lastChat?.content}
-              onClick={() => chatGroup.onOpen({ groupId: data.id })}
+              onClick={() => {
+                chatUser.onOpen({ chatId: data.id });
+                chatGroup.onClose();
+              }}
             />
           )}
         </>
@@ -39,4 +47,4 @@ const ChatSideGroup = ({ id }: Props) => {
   );
 };
 
-export default ChatSideGroup;
+export default ChatSideUser;
