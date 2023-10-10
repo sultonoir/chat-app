@@ -64,21 +64,42 @@ export const ApiGroup = createTRPCRouter({
   createMessage: publicProcedure
     .input(
       z.object({
-        groupId: z.string(),
+        groupId: z.string().optional(),
+        chatId: z.string().optional(),
         content: z.string().optional(),
         fileUrl: z.string().optional(),
         userId: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { groupId, content, fileUrl, userId } = input;
+      const { groupId, content, fileUrl, userId, chatId } = input;
       await ctx.db.message.create({
         data: {
           groupId,
+          chatId,
           userId,
           fileUrl,
           content,
         },
       });
+    }),
+  findMember: publicProcedure
+    .input(
+      z.object({
+        memberId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { memberId } = input;
+      const member = await ctx.db.user.findUnique({
+        where: {
+          id: memberId,
+        },
+      });
+      if (!member) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "user not found" });
+      }
+
+      return member;
     }),
 });

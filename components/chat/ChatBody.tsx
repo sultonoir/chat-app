@@ -1,15 +1,16 @@
 import { type Message, type User } from "@prisma/client";
 import React, { useEffect, useRef } from "react";
-
-import Image from "next/image";
 import { FileIcon } from "lucide-react";
+import { Image } from "@nextui-org/react";
 
 interface Props {
-  directMesg: Array<
-    Message & {
-      user: User;
-    }
-  >;
+  directMesg:
+    | Array<
+        Message & {
+          user: User;
+        }
+      >
+    | undefined;
   id?: string;
   isGroup?: boolean;
 }

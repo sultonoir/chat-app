@@ -11,6 +11,10 @@ import useChatGroup from "@/hooks/useChatGroup";
 import ChatGroupBox from "../chat/ChatGroupBox";
 import useProfileGroup from "@/hooks/useProfileGroup";
 import ProfileGroup from "../profile/ProfileGroup";
+import useProfileUser from "@/hooks/useProfileUser";
+import ProfileUser from "../profile/ProfileUser";
+import useChatUser from "@/hooks/useChatUser";
+import ChatUser from "../chat/ChatUser";
 
 const HomeClient = () => {
   const { data } = api.user.getUser.useQuery();
@@ -18,6 +22,8 @@ const HomeClient = () => {
   const createGroup = useCreateGroup();
   const ChatGroup = useChatGroup();
   const profileGroup = useProfileGroup();
+  const profileUser = useProfileUser();
+  const chatUser = useChatUser();
   return (
     <div className="container mx-auto flex h-screen flex-row overflow-hidden">
       {!data ? null : (
@@ -34,8 +40,10 @@ const HomeClient = () => {
           </div>
           <div className="relative h-full grow overflow-hidden">
             {ChatGroup.isOpen && <ChatGroupBox user={data} />}
+            {chatUser.isOpen && <ChatUser user={data} />}
           </div>
           {profileGroup.isOpen && <ProfileGroup user={data} />}
+          {profileUser.isOpen && <ProfileUser user={data} />}
         </>
       )}
     </div>

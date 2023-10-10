@@ -1,17 +1,40 @@
 import useProfile from "@/hooks/useProfle";
 import { Button, Input } from "@nextui-org/react";
 import { User } from "@prisma/client";
-import React from "react";
+import React, { useState } from "react";
 import { BiLeftArrowAlt } from "react-icons/bi";
 import ModalUploadImage from "../modal/ModalUploadImage";
 import { MdModeEditOutline } from "react-icons/md";
 import { motion } from "framer-motion";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
 interface Props {
   user: User;
 }
 
 const Profile = ({ user }: Props) => {
+  const [name, setName] = useState(user.name as string);
+  const [username, setUsername] = useState(user.username as string);
+  const [status, setStatus] = useState(user.status as string);
+  const ctx = api.useContext();
+  const { mutate } = api.user.updatePhotoProfile.useMutation({
+    onSuccess: () => {
+      toast.success("Profile has change");
+      ctx.user.getUser.invalidate();
+    },
+    onError: (e) => {
+      toast.error(e.message);
+      ctx.user.getUser.invalidate();
+    },
+  });
   const profile = useProfile();
+  const handleSubmit = () => {
+    mutate({
+      username,
+      status,
+      name,
+    });
+  };
   return (
     <>
       {profile.isOpen && (
@@ -29,11 +52,14 @@ const Profile = ({ user }: Props) => {
               <div className="flex items-center">Name</div>
               <Input
                 variant="underlined"
+                value={name}
+                onValueChange={setName}
                 color="primary"
                 defaultValue={user.name || ""}
                 endContent={
                   <Button
                     isIconOnly
+                    onPress={handleSubmit}
                     className="bg-transparent"
                   >
                     <MdModeEditOutline />
@@ -46,10 +72,13 @@ const Profile = ({ user }: Props) => {
               <Input
                 variant="underlined"
                 color="primary"
+                value={username}
+                onValueChange={setUsername}
                 defaultValue={user.username || ""}
                 endContent={
                   <Button
                     isIconOnly
+                    onPress={handleSubmit}
                     className="bg-transparent"
                   >
                     <MdModeEditOutline />
@@ -62,10 +91,13 @@ const Profile = ({ user }: Props) => {
               <Input
                 variant="underlined"
                 color="primary"
-                defaultValue={user.email || ""}
+                value={status}
+                onValueChange={setStatus}
+                defaultValue={user.status || ""}
                 endContent={
                   <Button
                     isIconOnly
+                    onPress={handleSubmit}
                     className="bg-transparent"
                   >
                     <MdModeEditOutline />

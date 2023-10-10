@@ -6,6 +6,7 @@ import React from "react";
 import ChatForm from "./ChatForm";
 import ChatBody from "./ChatBody";
 import useProfileGroup from "@/hooks/useProfileGroup";
+import DetailsFindMember from "../details/DetailsFindMember";
 
 interface Props {
   user: User;
@@ -17,6 +18,9 @@ const ChatGroupBox = ({ user }: Props) => {
     id: ChatGroup.groupId,
   });
   const profileGroup = useProfileGroup();
+  const member = chat?.member.map((e) => ({
+    id: e,
+  }));
   return (
     <>
       {ChatGroup.isOpen && (
@@ -43,9 +47,19 @@ const ChatGroupBox = ({ user }: Props) => {
                         showFallback
                         size="md"
                       />
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col">
                         <h5 className="text-base font-semibold">{chat.name}</h5>
-                        <div className="flex space-x-0.5"></div>
+                        <div className="mt-[-5px] flex">
+                          {member &&
+                            member.map((item) => (
+                              <DetailsFindMember
+                                memberId={item.id}
+                                isChatBox
+                                userId={user.id}
+                                key={item.id}
+                              />
+                            ))}
+                        </div>
                       </div>
                     </div>
                   </div>

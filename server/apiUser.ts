@@ -82,16 +82,105 @@ export const ApiUser = createTRPCRouter({
   updatePhotoProfile: protectedProcedure
     .input(
       z.object({
-        image: z.string(),
+        image: z.string().optional(),
+        status: z.string().optional(),
+        name: z.string().optional(),
+        username: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const { name, image, username, status } = input;
       await ctx.db.user.update({
         where: {
           email: ctx.session.user.email as string,
         },
         data: {
-          image: input.image,
+          image,
+          name,
+          status,
+          username,
+        },
+      });
+    }),
+  createChat: publicProcedure
+    .input(
+      z.object({
+        cureenUserId: z.string(),
+        userId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { userId, cureenUserId } = input;
+      const chat = await ctx.db.chat.findFirst({
+        where: {
+          OR: [
+            {
+              receiverId: userId,
+              senderId: cureenUserId,
+            },
+            {
+              receiverId: cureenUserId,
+              senderId: userId,
+            },
+          ],
+        },
+      });
+      if (chat) {
+        return chat.id;
+      } else {
+        const chat = await ctx.db.chat.create({
+          data: {
+            receiverId: userId,
+            senderId: cureenUserId,
+          },
+        });
+        return chat.id;
+      }
+    }),
+  getChat: publicProcedure
+    .input(
+      z.object({
+        chatId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const chat = await ctx.db.chat.findUnique({
+        where: {
+          id: input.chatId,
+        },
+        include: {
+          sender: true,
+          receiver: true,
+          message: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      });
+      if (!chat) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "chat not found" });
+      } else {
+        return chat;
+      }
+    }),
+  createMessage: publicProcedure
+    .input(
+      z.object({
+        chatId: z.string().optional(),
+        content: z.string().optional(),
+        fileUrl: z.string().optional(),
+        userId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { content, fileUrl, userId, chatId } = input;
+      await ctx.db.message.create({
+        data: {
+          chatId,
+          userId,
+          fileUrl,
+          content,
         },
       });
     }),

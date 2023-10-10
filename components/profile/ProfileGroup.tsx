@@ -4,6 +4,7 @@ import { User } from "@prisma/client";
 import { ChevronRightIcon, FileIcon, XIcon } from "lucide-react";
 import React from "react";
 import DetailsMember from "../details/DetailsMember";
+import DetailsUser from "../details/DetailsUser";
 
 interface Props {
   user: User;
@@ -12,7 +13,11 @@ interface Props {
 const ProfileGroup = ({ user }: Props) => {
   const profileGroup = useProfileGroup();
   const media = profileGroup.group?.message.filter((e) => e.fileUrl);
-  console.log(profileGroup.group?.member);
+
+  const member = profileGroup.group?.member.map((item) => ({
+    id: item,
+  }));
+
   function deteksiJenisFile(namaFile: string) {
     const ekstensi = namaFile.split(".").pop()?.toLowerCase();
     switch (ekstensi) {
@@ -111,12 +116,23 @@ const ProfileGroup = ({ user }: Props) => {
               </div>
             </div>
             <div className="flex flex-col bg-bgsearch py-2">
+              <div className="flex justify-between px-4">
+                <p className="text-base">{member?.length} Member</p>
+              </div>
               <DetailsMember
                 imageUrl={user.image ?? ""}
                 name="Me"
                 etc={user.email ?? ""}
                 admin={profileGroup.group?.isAdmin}
               />
+              {member &&
+                member.map((item) => (
+                  <DetailsUser
+                    currentUserId={user.id}
+                    userId={item.id}
+                    key={item.id}
+                  />
+                ))}
             </div>
           </div>
         </div>
