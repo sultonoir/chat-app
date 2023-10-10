@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, FileIcon, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@nextui-org/react";
 
@@ -13,6 +13,8 @@ interface DetailsMemberProps extends React.HTMLAttributes<HTMLDivElement> {
   active?: boolean;
   fileUrl?: string | null;
   message?: string | null;
+  sideList?: boolean;
+  isLoading?: boolean;
 }
 
 const DetailsMember: React.FC<DetailsMemberProps> = ({
@@ -26,6 +28,8 @@ const DetailsMember: React.FC<DetailsMemberProps> = ({
   fileUrl,
   message,
   className,
+  sideList,
+  isLoading,
   ...Props
 }) => {
   const formatDateString = (dateString: Date | undefined | null) => {
@@ -47,7 +51,18 @@ const DetailsMember: React.FC<DetailsMemberProps> = ({
       case "jpg":
       case "jpeg":
       case "png":
-        return <>{sender} : mengirim gambar</>;
+        return (
+          <div className="flex flex-row flex-nowrap items-center">
+            <p>{sender} : </p>
+
+            <ImageIcon
+              size={10}
+              className="mx-1"
+            />
+
+            <p> send pictures</p>
+          </div>
+        );
       case "mp3":
         return (
           <audio
@@ -62,7 +77,18 @@ const DetailsMember: React.FC<DetailsMemberProps> = ({
           </audio>
         );
       case "pdf":
-        return <>{sender} : mengirim dokumen</>;
+        return (
+          <div className="flex flex-row flex-nowrap items-center">
+            <p>{sender} : </p>
+
+            <FileIcon
+              size={10}
+              className="mx-1"
+            />
+
+            <p> send documents</p>
+          </div>
+        );
       default:
         return "Tipe tidak dikenal";
     }
@@ -74,7 +100,8 @@ const DetailsMember: React.FC<DetailsMemberProps> = ({
       className={cn(
         "flex flex-row h-[72px] w-full hover:bg-bs group cursor-pointer",
         className,
-        `${active && "bg-[#233138]"}`
+        `${active && "bg-[#233138]"}`,
+        `${isLoading && "cursor-not-allowed opacity-50"}`
       )}
     >
       <div className="flex items-center px-4">
@@ -84,9 +111,13 @@ const DetailsMember: React.FC<DetailsMemberProps> = ({
           size="md"
         />
       </div>
-      <div className="flex min-w-0 grow basis-auto flex-col justify-center pr-3">
+      <div
+        className={`${
+          sideList ? "border-b border-default-200 group-hover:border-none" : ""
+        } flex min-w-0 grow basis-auto flex-col justify-center pr-3`}
+      >
         <div className="flex items-center leading-normal">
-          <div className="flex grow flex-wrap items-center break-words text-left font-normal leading-normal text-default-800">
+          <div className="flex grow flex-wrap items-center break-words text-left font-normal capitalize leading-normal text-default-800">
             {name}
           </div>
           {admin && (
@@ -104,7 +135,7 @@ const DetailsMember: React.FC<DetailsMemberProps> = ({
             </div>
           )}
         </div>
-        <div className="mt-[-4px] flex min-h-[20px] overflow-x-hidden text-xs">
+        <div className="mt-[-4px] flex min-h-[20px] w-full justify-between overflow-x-hidden text-sm">
           {etc && (
             <div className="max-w-xs grow truncate font-normal leading-5 dark:text-[#8696a0]">
               {etc}
@@ -116,7 +147,7 @@ const DetailsMember: React.FC<DetailsMemberProps> = ({
             </div>
           )}
           {sender && message && (
-            <div className="w-full max-w-[280px] grow truncate font-normal leading-5 dark:text-[#8696a0]">
+            <div className="w-full max-w-xs grow truncate font-normal leading-5 dark:text-[#8696a0]">
               {sender}: {message}
             </div>
           )}

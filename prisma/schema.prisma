@@ -26,16 +26,13 @@ model User {
   member            Member[]
   chatSender        Chat[]      @relation("sender")
   chatReceiver      Chat[]      @relation("receiver")
-  friendSender      Friend[]    @relation("sender")
-  frinedReceiver    Friend[]    @relation("receiver")
+  friend            Friend[]
 }
-
 model Friend {
   id                String  @id @default(auto()) @map("_id") @db.ObjectId
-  senderId        String   @db.ObjectId
-  receiverId      String   @db.ObjectId
-  sender          User     @relation("sender",fields: [senderId], references: [id], onDelete: Cascade)
-  receiver        User     @relation("receiver",fields: [receiverId], references: [id], onDelete: Cascade)
+  friendId          String
+  userId            String   @db.ObjectId
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Account {

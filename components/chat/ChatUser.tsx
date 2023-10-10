@@ -1,5 +1,5 @@
 import useChatUser from "@/hooks/useChatUser";
-import { User } from "@prisma/client";
+import { Friend, User } from "@prisma/client";
 import React from "react";
 import { Avatar, Button } from "@nextui-org/react";
 import ChatBody from "./ChatBody";
@@ -8,18 +8,21 @@ import { api } from "@/lib/api";
 import { BiUserPlus } from "react-icons/bi";
 import dayjs from "dayjs";
 import fromNow from "dayjs/plugin/relativeTime";
+import VideoCall from "../shared/VideoCall";
 dayjs.extend(fromNow);
 interface Props {
   user: User;
+  friend: Friend[];
 }
 
-const ChatUser = ({ user }: Props) => {
+const ChatUser = ({ user, friend }: Props) => {
   const chatUser = useChatUser();
   const { data: chat, isLoading } = api.user.getChat.useQuery({
     chatId: chatUser.chatId,
   });
-
   const other = user.id === chat?.senderId ? chat.receiver : chat?.sender;
+  const addFriend = friend.find((e) => e.friendId === other?.id);
+  const { mutate, isLoading: loading } = api.user.addfriend.useMutation();
   return (
     <>
       {chatUser.isOpen && (
@@ -44,29 +47,42 @@ const ChatUser = ({ user }: Props) => {
                         size="md"
                       />
                       <div className="flex flex-col">
-                        <h5 className="text-base font-semibold">
+                        <h5 className="text-base font-semibold capitalize">
                           {other?.name ?? ""}
                         </h5>
-                        {other?.lastSeen?.getMinutes ===
-                        new Date().getMinutes ? (
+                        {other?.lastSeen?.getMinutes() ===
+                        new Date().getMinutes() ? (
                           <p className="text-xs text-slate-500">Online</p>
                         ) : (
-                          <p>
-                            <p className="text-xs text-slate-500">
-                              {`${dayjs(user?.lastSeen).fromNow()}`}
-                            </p>
+                          <p className="text-xs text-slate-500">
+                            {`${dayjs(user?.lastSeen).fromNow()}`}
                           </p>
                         )}
                       </div>
                     </div>
-                    <Button
-                      isIconOnly
-                      disabled
-                      variant="solid"
-                      color="primary"
-                    >
-                      <BiUserPlus size={20} />
-                    </Button>
+                    <div className="flex flex-nowrap gap-x-1">
+                      <VideoCall />
+                      {addFriend ? null : (
+                        <Button
+                          isIconOnly
+                          radius="full"
+                          variant="light"
+                          isLoading={loading}
+                          className="text-iconnav"
+                          onPress={() =>
+                            mutate({
+                              userId: user.id,
+                              friendId: other?.id ?? "",
+                            })
+                          }
+                        >
+                          <BiUserPlus
+                            size={25}
+                            className={`${loading && "hidden"}`}
+                          />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <ChatBody
                     directMesg={chat.message}

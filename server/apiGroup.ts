@@ -118,4 +118,58 @@ export const ApiGroup = createTRPCRouter({
 
       return member;
     }),
+  joinGroup: publicProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+        userId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { groupId, userId } = input;
+
+      const member = await ctx.db.member.findFirst({
+        where: {
+          groupId,
+          userId,
+        },
+      });
+      if (!member) {
+        const member = await ctx.db.member.create({
+          data: {
+            groupId,
+            userId,
+          },
+        });
+        return member.groupId;
+      }
+      return member?.groupId;
+    }),
+  findChat: publicProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+        query: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { groupId, query } = input;
+      const chat = await ctx.db.message.findMany({
+        where: {
+          OR: [
+            {
+              groupId,
+              content: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+        include: {
+          user: true,
+        },
+      });
+      return chat;
+    }),
 });

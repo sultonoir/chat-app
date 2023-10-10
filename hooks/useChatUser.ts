@@ -15,7 +15,7 @@ const useChatUser = create<ChatUserStore>((set) => ({
   isOpen: false,
   chatId: "",
   onOpen: ({ chatId }) => set({ isOpen: true, chatId }),
-  onClose: () => set({ isOpen: false }),
+  onClose: () => set({ isOpen: false, chatId: "" }),
 }));
 
 export default useChatUser;

@@ -4,6 +4,7 @@ import { User } from "@prisma/client";
 import { ChevronRightIcon, FileIcon, XIcon } from "lucide-react";
 import React from "react";
 import DetailsMember from "../details/DetailsMember";
+import DetailsUser from "../details/DetailsUser";
 
 interface Props {
   user: User;
@@ -122,15 +123,14 @@ const ProfileGroup = ({ user }: Props) => {
               <DetailsMember
                 imageUrl={user.image ?? ""}
                 name="Me"
-                etc={user.email ?? ""}
+                etc={user.status ?? ""}
                 admin={admin}
               />
               {member?.map((item) => (
-                <DetailsMember
+                <DetailsUser
                   key={item.id}
-                  imageUrl={item.user.image ?? ""}
-                  name={item.user.username ?? ""}
-                  etc={item.user.status ?? ""}
+                  currentUserId={user.id}
+                  userId={item.userId}
                 />
               ))}
             </div>

@@ -15,6 +15,7 @@ export const ApiUser = createTRPCRouter({
             updatedAt: "desc",
           },
         },
+        friend: true,
       },
     });
     await ctx.db.user.update({
@@ -249,5 +250,61 @@ export const ApiUser = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND", message: "chat not found" });
       }
       return chat;
+    }),
+  findAll: publicProcedure
+    .input(
+      z.object({
+        query: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { query } = input;
+      const currentUser = await ctx.db.user.findUnique({
+        where: {
+          email: ctx.session?.user?.email as string,
+        },
+      });
+      const userSearch = await ctx.db.user.findMany({
+        where: {
+          OR: [
+            {
+              username: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+      });
+      const group = await ctx.db.group.findMany({
+        where: {
+          OR: [
+            {
+              name: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+      });
+      const user = userSearch.filter((e) => e.id !== currentUser?.id);
+      return { user, group };
+    }),
+  addfriend: publicProcedure
+    .input(
+      z.object({
+        friendId: z.string(),
+        userId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { friendId, userId } = input;
+      await ctx.db.friend.create({
+        data: {
+          friendId,
+          userId,
+        },
+      });
     }),
 });

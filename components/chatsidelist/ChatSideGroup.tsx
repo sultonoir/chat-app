@@ -2,6 +2,7 @@ import { api } from "@/lib/api";
 import React from "react";
 import DetailsMember from "../details/DetailsMember";
 import useChatGroup from "@/hooks/useChatGroup";
+import useChatUser from "@/hooks/useChatUser";
 
 type Props = {
   id: string;
@@ -9,6 +10,7 @@ type Props = {
 
 const ChatSideGroup = ({ id }: Props) => {
   const chatGroup = useChatGroup();
+  const chatUser = useChatUser();
   const { data, isLoading } = api.group.getGroup.useQuery({
     id,
   });
@@ -30,7 +32,12 @@ const ChatSideGroup = ({ id }: Props) => {
               sender={lastChat?.user.username}
               fileUrl={lastChat?.fileUrl}
               message={lastChat?.content}
-              onClick={() => chatGroup.onOpen({ groupId: data.id })}
+              active={chatGroup.groupId === data.id}
+              onClick={() => {
+                chatGroup.onOpen({ groupId: data.id });
+                chatUser.onClose();
+              }}
+              sideList
             />
           )}
         </>

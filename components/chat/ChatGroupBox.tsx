@@ -1,11 +1,14 @@
 import useChatGroup from "@/hooks/useChatGroup";
 import { api } from "@/lib/api";
-import { Avatar } from "@nextui-org/react";
+import { Avatar, Button } from "@nextui-org/react";
 import { User } from "@prisma/client";
 import React from "react";
 import ChatForm from "./ChatForm";
 import ChatBody from "./ChatBody";
 import useProfileGroup from "@/hooks/useProfileGroup";
+import VideoCall from "../shared/VideoCall";
+import { SearchIcon } from "lucide-react";
+import useSearchChatGroup from "@/hooks/useSearchChatGroup";
 
 interface Props {
   user: User;
@@ -17,6 +20,7 @@ const ChatGroupBox = ({ user }: Props) => {
     id: ChatGroup.groupId,
   });
   const profileGroup = useProfileGroup();
+  const seachChatGroup = useSearchChatGroup();
   return (
     <>
       {ChatGroup.isOpen && (
@@ -56,6 +60,20 @@ const ChatGroupBox = ({ user }: Props) => {
                           ))}
                         </div>
                       </div>
+                    </div>
+                    <div className="flex flex-nowrap gap-x-1">
+                      <VideoCall />
+                      <Button
+                        radius="full"
+                        isIconOnly
+                        onPress={() =>
+                          seachChatGroup.onOpen({ groupId: chat.id })
+                        }
+                        variant="light"
+                        className="text-iconnav"
+                      >
+                        <SearchIcon size={20} />
+                      </Button>
                     </div>
                   </div>
                   <ChatBody

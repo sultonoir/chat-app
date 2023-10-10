@@ -68,12 +68,12 @@ const ChatBody: React.FC<Props> = ({ directMesg, id, isGroup }) => {
               return (
                 <div className="relative mt-2 flex items-center rounded-md p-2">
                   <>
-                    <FileIcon className="h-10 w-10 fill-rose-200 stroke-rose-400" />
+                    <FileIcon className="h-10 w-10 fill-gray-200 stroke-gray-400" />
                     <a
                       href={namaFile}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="ml-2 text-sm text-rose-500 hover:underline dark:text-rose-400"
+                      className="ml-2 text-sm text-gray-500 hover:underline dark:text-gray-400"
                     >
                       pdf
                     </a>

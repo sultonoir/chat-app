@@ -35,6 +35,8 @@ const ChatSideUser = ({ userId, chatId }: Props) => {
               sender={lastChat?.user.username}
               fileUrl={lastChat?.fileUrl}
               message={lastChat?.content}
+              active={chatUser.chatId === data.id}
+              sideList
               onClick={() => {
                 chatUser.onOpen({ chatId: data.id });
                 chatGroup.onClose();
