@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { Button, Input } from "@nextui-org/react";
 import Register from "./Register";
 import { BsGithub } from "react-icons/bs";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.string().min(2, {
@@ -53,7 +54,7 @@ const LoginForm = () => {
           router.refresh();
         }
         if (callback?.error) {
-          console.log("error");
+          toast.error(callback.error);
         }
       })
       .catch((e) => {})

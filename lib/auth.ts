@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user?.hashedPassword) {
-          throw new Error("user tidak ditemukan");
+          throw new Error("User not found");
         }
 
         const isCorrectPassword = await bcrypt.compare(
@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isCorrectPassword) {
-          throw new Error("password salah");
+          throw new Error("Wrong password");
         }
 
         return user;
