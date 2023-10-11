@@ -8,6 +8,7 @@ import DetailsMember from "../details/DetailsMember";
 import { User } from "@prisma/client";
 import useChatUser from "@/hooks/useChatUser";
 import useChatGroup from "@/hooks/useChatGroup";
+import Loading from "../shared/Loading";
 
 interface Props {
   user: User;
@@ -53,7 +54,7 @@ const ChatSideSearch = ({ user }: Props) => {
       {query === "" ? null : (
         <div className="mb-1 flex w-full flex-col gap-y-1">
           {isLoading ? (
-            <>loading...</>
+            <Loading />
           ) : (
             <>
               {!data ? null : (

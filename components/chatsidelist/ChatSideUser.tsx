@@ -5,6 +5,7 @@ import useChatGroup from "@/hooks/useChatGroup";
 import useChatUser from "@/hooks/useChatUser";
 import useSearchChatUser from "@/hooks/useSearchChatUser";
 import useSearchChatGroup from "@/hooks/useSearchChatGroup";
+import Loading from "../shared/Loading";
 
 type Props = {
   userId: string;
@@ -26,7 +27,7 @@ const ChatSideUser = ({ userId, chatId }: Props) => {
   return (
     <>
       {isLoading ? (
-        <>loading...</>
+        <Loading />
       ) : (
         <>
           {!data ? (

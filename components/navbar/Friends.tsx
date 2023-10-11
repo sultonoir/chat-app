@@ -8,6 +8,7 @@ import { BiLeftArrowAlt } from "react-icons/bi";
 import DetailsMember from "../details/DetailsMember";
 import useChatUser from "@/hooks/useChatUser";
 import useChatGroup from "@/hooks/useChatGroup";
+import Loading from "../shared/Loading";
 
 type Props = {
   friends: Friend[];
@@ -70,7 +71,7 @@ interface F {
 }
 
 const FriendUi = ({ friend, user, query }: F) => {
-  const { data } = api.user.getFriend.useQuery({
+  const { data, isLoading } = api.user.getFriend.useQuery({
     friendId: friend.friendId,
   });
   const chatUser = useChatUser();
@@ -84,32 +85,38 @@ const FriendUi = ({ friend, user, query }: F) => {
     });
   return (
     <>
-      {data?.name === query ? (
-        <DetailsMember
-          imageUrl={data?.image ?? ""}
-          name={data?.name ?? ""}
-          etc={data?.status ?? ""}
-          isLoading={loading}
-          onClick={() =>
-            createchat({
-              userId: data?.id ?? "",
-              cureenUserId: user.id,
-            })
-          }
-        />
+      {isLoading ? (
+        <Loading />
       ) : (
-        <DetailsMember
-          imageUrl={data?.image ?? ""}
-          name={data?.name ?? ""}
-          etc={data?.status ?? ""}
-          isLoading={loading}
-          onClick={() =>
-            createchat({
-              userId: data?.id ?? "",
-              cureenUserId: user.id,
-            })
-          }
-        />
+        <>
+          {data?.name === query ? (
+            <DetailsMember
+              imageUrl={data?.image ?? ""}
+              name={data?.name ?? ""}
+              etc={data?.status ?? ""}
+              isLoading={loading}
+              onClick={() =>
+                createchat({
+                  userId: data?.id ?? "",
+                  cureenUserId: user.id,
+                })
+              }
+            />
+          ) : (
+            <DetailsMember
+              imageUrl={data?.image ?? ""}
+              name={data?.name ?? ""}
+              etc={data?.status ?? ""}
+              isLoading={loading}
+              onClick={() =>
+                createchat({
+                  userId: data?.id ?? "",
+                  cureenUserId: user.id,
+                })
+              }
+            />
+          )}
+        </>
       )}
     </>
   );
