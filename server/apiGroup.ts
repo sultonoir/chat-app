@@ -172,4 +172,44 @@ export const ApiGroup = createTRPCRouter({
       });
       return chat;
     }),
+  addMember: publicProcedure
+    .input(
+      z.array(
+        z.object({
+          groupId: z.string(),
+          memberId: z.string(),
+        })
+      )
+    )
+    .mutation(async ({ ctx, input }) => {
+      const existingMembers = await ctx.db.member.findMany({
+        where: {
+          OR: input.map((e) => ({
+            groupId: e.groupId,
+            userId: e.memberId,
+          })),
+        },
+      });
+
+      // Buat data anggota baru hanya untuk anggota yang belum ada dalam database
+      const newMembers = input.filter((e) => {
+        const isMemberExist = existingMembers.some((existingMember) => {
+          return (
+            existingMember.groupId === e.groupId &&
+            existingMember.userId === e.memberId
+          );
+        });
+        return !isMemberExist;
+      });
+
+      // Tambahkan anggota yang belum ada dalam database
+      if (newMembers.length > 0) {
+        await ctx.db.member.createMany({
+          data: newMembers.map((e) => ({
+            groupId: e.groupId,
+            userId: e.memberId,
+          })),
+        });
+      }
+    }),
 });

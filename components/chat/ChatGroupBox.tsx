@@ -1,7 +1,7 @@
 import useChatGroup from "@/hooks/useChatGroup";
 import { api } from "@/lib/api";
 import { Avatar, Button } from "@nextui-org/react";
-import { User } from "@prisma/client";
+import { Friend, User } from "@prisma/client";
 import React from "react";
 import ChatForm from "./ChatForm";
 import ChatBody from "./ChatBody";
@@ -9,12 +9,14 @@ import useProfileGroup from "@/hooks/useProfileGroup";
 import VideoCall from "../shared/VideoCall";
 import { SearchIcon } from "lucide-react";
 import useSearchChatGroup from "@/hooks/useSearchChatGroup";
+import AddMember from "../shared/AddMember";
 
 interface Props {
   user: User;
+  friend: Friend[];
 }
 
-const ChatGroupBox = ({ user }: Props) => {
+const ChatGroupBox = ({ user, friend }: Props) => {
   const ChatGroup = useChatGroup();
   const { data: chat, isLoading } = api.group.getGroup.useQuery({
     id: ChatGroup.groupId,
@@ -38,7 +40,10 @@ const ChatGroupBox = ({ user }: Props) => {
                 <>
                   <div className="flex w-full items-center justify-between bg-bs px-5 py-2">
                     <div
-                      onClick={() => profileGroup.onOpen({ group: chat })}
+                      onClick={() => {
+                        profileGroup.onOpen({ group: chat });
+                        seachChatGroup.onClose();
+                      }}
                       className="flex cursor-pointer flex-row items-center gap-x-3"
                     >
                       <Avatar
@@ -62,6 +67,12 @@ const ChatGroupBox = ({ user }: Props) => {
                       </div>
                     </div>
                     <div className="flex flex-nowrap gap-x-1">
+                      {user.id === chat.userId && (
+                        <AddMember
+                          friends={friend}
+                          groupId={chat.id}
+                        />
+                      )}
                       <VideoCall />
                       <Button
                         radius="full"

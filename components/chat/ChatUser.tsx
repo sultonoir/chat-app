@@ -9,6 +9,8 @@ import { BiUserPlus } from "react-icons/bi";
 import dayjs from "dayjs";
 import fromNow from "dayjs/plugin/relativeTime";
 import VideoCall from "../shared/VideoCall";
+import { SearchIcon } from "lucide-react";
+import useSearchChatUser from "@/hooks/useSearchChatUser";
 dayjs.extend(fromNow);
 interface Props {
   user: User;
@@ -17,12 +19,18 @@ interface Props {
 
 const ChatUser = ({ user, friend }: Props) => {
   const chatUser = useChatUser();
+  const searchChatUser = useSearchChatUser();
   const { data: chat, isLoading } = api.user.getChat.useQuery({
     chatId: chatUser.chatId,
   });
+  const ctx = api.useContext();
   const other = user.id === chat?.senderId ? chat.receiver : chat?.sender;
   const addFriend = friend.find((e) => e.friendId === other?.id);
-  const { mutate, isLoading: loading } = api.user.addfriend.useMutation();
+  const { mutate, isLoading: loading } = api.user.addfriend.useMutation({
+    onSuccess: () => {
+      ctx.user.getUser.invalidate();
+    },
+  });
   return (
     <>
       {chatUser.isOpen && (
@@ -62,6 +70,17 @@ const ChatUser = ({ user, friend }: Props) => {
                     </div>
                     <div className="flex flex-nowrap gap-x-1">
                       <VideoCall />
+                      <Button
+                        radius="full"
+                        isIconOnly
+                        onPress={() =>
+                          searchChatUser.onOpen({ chatId: chat.id })
+                        }
+                        variant="light"
+                        className="text-iconnav"
+                      >
+                        <SearchIcon size={20} />
+                      </Button>
                       {addFriend ? null : (
                         <Button
                           isIconOnly

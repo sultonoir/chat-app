@@ -3,6 +3,8 @@ import React from "react";
 import DetailsMember from "../details/DetailsMember";
 import useChatGroup from "@/hooks/useChatGroup";
 import useChatUser from "@/hooks/useChatUser";
+import useSearchChatUser from "@/hooks/useSearchChatUser";
+import useSearchChatGroup from "@/hooks/useSearchChatGroup";
 
 type Props = {
   userId: string;
@@ -12,6 +14,8 @@ type Props = {
 const ChatSideUser = ({ userId, chatId }: Props) => {
   const chatGroup = useChatGroup();
   const chatUser = useChatUser();
+  const searchChatUser = useSearchChatUser();
+  const searchChatGroup = useSearchChatGroup();
   const { data, isLoading } = api.user.getChat.useQuery({
     chatId,
   });
@@ -40,6 +44,8 @@ const ChatSideUser = ({ userId, chatId }: Props) => {
               onClick={() => {
                 chatUser.onOpen({ chatId: data.id });
                 chatGroup.onClose();
+                searchChatGroup.onClose();
+                searchChatUser.onClose();
               }}
             />
           )}

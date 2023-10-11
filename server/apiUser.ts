@@ -307,4 +307,49 @@ export const ApiUser = createTRPCRouter({
         },
       });
     }),
+  getFriend: publicProcedure
+    .input(
+      z.object({
+        friendId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { friendId } = input;
+      const friend = await ctx.db.user.findUnique({
+        where: {
+          id: friendId,
+        },
+      });
+      if (!friend) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "friend not found" });
+      }
+      return friend;
+    }),
+  findMessage: publicProcedure
+    .input(
+      z.object({
+        chatId: z.string(),
+        query: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { chatId, query } = input;
+      const chat = await ctx.db.message.findMany({
+        where: {
+          OR: [
+            {
+              chatId,
+              content: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+        include: {
+          user: true,
+        },
+      });
+      return chat;
+    }),
 });

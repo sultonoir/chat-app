@@ -3,6 +3,8 @@ import React from "react";
 import DetailsMember from "../details/DetailsMember";
 import useChatGroup from "@/hooks/useChatGroup";
 import useChatUser from "@/hooks/useChatUser";
+import useSearchChatUser from "@/hooks/useSearchChatUser";
+import useSearchChatGroup from "@/hooks/useSearchChatGroup";
 
 type Props = {
   id: string;
@@ -11,6 +13,8 @@ type Props = {
 const ChatSideGroup = ({ id }: Props) => {
   const chatGroup = useChatGroup();
   const chatUser = useChatUser();
+  const searchChatUser = useSearchChatUser();
+  const searchChatGroup = useSearchChatGroup();
   const { data, isLoading } = api.group.getGroup.useQuery({
     id,
   });
@@ -36,6 +40,8 @@ const ChatSideGroup = ({ id }: Props) => {
               onClick={() => {
                 chatGroup.onOpen({ groupId: data.id });
                 chatUser.onClose();
+                searchChatGroup.onClose();
+                searchChatUser.onClose();
               }}
               sideList
             />
