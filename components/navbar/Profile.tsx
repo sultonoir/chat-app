@@ -41,7 +41,7 @@ const Profile = ({ user }: Props) => {
         <motion.div className="absolute top-0 z-10 flex h-screen w-full flex-col bg-bgsearch">
           <div
             onClick={profile.onClose}
-            className="flex h-[58px] flex-row items-center bg-bgchat py-3 pl-3"
+            className="flex h-[58px] cursor-pointer flex-row items-center bg-bgchat py-3 pl-3 "
           >
             <BiLeftArrowAlt size={30} />
             <p>Profile</p>
