@@ -1,10 +1,18 @@
 import useProfileGroup from "@/hooks/useProfileGroup";
-import { Image } from "@nextui-org/react";
+import { Button, Image, Input } from "@nextui-org/react";
 import { User } from "@prisma/client";
-import { ChevronRightIcon, FileIcon, XIcon } from "lucide-react";
-import React from "react";
+import {
+  CheckCircle,
+  ChevronRightIcon,
+  FileIcon,
+  PenSquareIcon,
+  XIcon,
+} from "lucide-react";
+import React, { useState } from "react";
 import DetailsMember from "../details/DetailsMember";
 import DetailsUser from "../details/DetailsUser";
+import ModalUploadImageGroup from "../modal/ModaluploadImageGroup";
+import { api } from "@/lib/api";
 
 interface Props {
   user: User;
@@ -12,10 +20,33 @@ interface Props {
 
 const ProfileGroup = ({ user }: Props) => {
   const profileGroup = useProfileGroup();
-  const group = profileGroup.group;
-  const member = profileGroup.group?.member.filter((e) => e.userId !== user.id);
-  const media = profileGroup.group?.message.filter((e) => e.fileUrl);
-  const admin = profileGroup.group?.userId === user.id;
+  const { data: group } = api.group.getGroup.useQuery({
+    id: profileGroup.group?.id ?? "",
+  });
+  const [show, setShow] = useState(false);
+  const [showDesc, setShowDesc] = useState(false);
+  const [desc, setDesc] = useState(group?.desc ?? "");
+  const [name, setName] = useState("");
+  const member = group?.member.filter((e) => e.userId !== user.id);
+  const media = group?.message.filter((e) => e.fileUrl);
+  const admin = group?.userId === user.id;
+
+  const ctx = api.useContext();
+  const { mutate, isLoading } = api.group.updateGroup.useMutation({
+    onSuccess: () => {
+      ctx.group.getGroup.invalidate();
+      setShow(!show);
+    },
+  });
+
+  const { mutate: changeDesc, isLoading: loading } =
+    api.group.updateGroup.useMutation({
+      onSuccess: () => {
+        ctx.group.getGroup.invalidate();
+        setShowDesc(!showDesc);
+      },
+    });
+
   function deteksiJenisFile(namaFile: string) {
     const ekstensi = namaFile.split(".").pop()?.toLowerCase();
     switch (ekstensi) {
@@ -78,20 +109,104 @@ const ProfileGroup = ({ user }: Props) => {
             className="flex grow flex-col gap-y-5 overflow-y-auto "
           >
             <div className="flex flex-col items-center justify-between gap-y-5 bg-bgsearch py-5">
-              <Image
-                src={profileGroup.group?.image}
-                alt={profileGroup.group?.name}
-                width={200}
-                height={200}
-                radius="full"
+              <ModalUploadImageGroup
+                imageUrl={group?.image ?? ""}
+                admin={user.id === group?.userId}
+                groupId={group?.id ?? ""}
               />
-              <h3 className="text-2xl">{profileGroup.group?.name}</h3>
+              <div className="group flex items-center justify-center gap-x-2">
+                {show ? (
+                  <>
+                    <Input
+                      variant="underlined"
+                      color="primary"
+                      value={name}
+                      onValueChange={setName}
+                    />
+                    <Button
+                      isLoading={isLoading}
+                      disabled={isLoading}
+                      isIconOnly
+                      size="sm"
+                      onPress={() =>
+                        mutate({
+                          groupId: group?.id ?? "",
+                          name,
+                        })
+                      }
+                    >
+                      <CheckCircle
+                        size={14}
+                        className={`${isLoading && "hidden"}`}
+                      />
+                    </Button>
+                  </>
+                ) : (
+                  <h3 className="text-2xl">{group?.name}</h3>
+                )}
+                {admin && (
+                  <Button
+                    isIconOnly
+                    onPress={() => setShow(!show)}
+                    size="sm"
+                    variant="solid"
+                    className={`${show && "hidden"}`}
+                  >
+                    <PenSquareIcon size={14} />
+                  </Button>
+                )}
+              </div>
               <p>
                 Group <span>{group?.member.length}</span> member
               </p>
             </div>
             <div className="w-full bg-bgsearch py-2 pl-7 pr-2">
-              <div className="align-baseline">{profileGroup.group?.desc}</div>
+              <div className="flex w-full items-center justify-between">
+                {showDesc ? (
+                  <div className="flex w-full items-center justify-between">
+                    <textarea
+                      disabled={isLoading}
+                      id="chat"
+                      rows={1}
+                      value={desc}
+                      onChange={(e) => setDesc(e.target.value)}
+                      className="mr-2 block w-full resize-none rounded-lg border border-gray-300 bg-white p-2.5 text-sm focus:ring-transparent focus-visible:outline-none focus-visible:ring-transparent focus-visible:ring-offset-0 dark:border-gray-600 dark:bg-default md:pl-4 md:pr-12"
+                      placeholder="Your message..."
+                    />
+                    <Button
+                      isLoading={loading}
+                      disabled={loading}
+                      isIconOnly
+                      size="sm"
+                      onPress={() =>
+                        changeDesc({
+                          groupId: group?.id ?? "",
+                          desc,
+                        })
+                      }
+                    >
+                      <CheckCircle
+                        size={14}
+                        className={`${loading && "hidden"}`}
+                      />
+                    </Button>
+                  </div>
+                ) : (
+                  <h3 className="text-medium">{group?.desc}</h3>
+                )}
+                {admin && (
+                  <Button
+                    isIconOnly
+                    onPress={() => setShowDesc(!showDesc)}
+                    size="sm"
+                    variant="solid"
+                    className={`${showDesc && "hidden"}`}
+                  >
+                    <PenSquareIcon size={14} />
+                  </Button>
+                )}
+              </div>
+
               <div className="mt-2 flex justify-between dark:text-[#667781]">
                 <h3 className="text-xs">Media, link,and dock</h3>
                 <h3 className="mt-2 inline-flex w-full max-w-max text-xs">

@@ -212,4 +212,39 @@ export const ApiGroup = createTRPCRouter({
         });
       }
     }),
+  updateGroup: publicProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+        image: z.string().optional(),
+        name: z.string().optional(),
+        desc: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { groupId, image, name, desc } = input;
+      const dataToUpdate: any = {};
+
+      if (image !== "") {
+        dataToUpdate.image = image;
+      }
+
+      if (name !== "") {
+        dataToUpdate.name = name;
+      }
+
+      if (desc !== "") {
+        dataToUpdate.desc = desc;
+      }
+
+      if (Object.keys(dataToUpdate).length > 0) {
+        const group = await ctx.db.group.update({
+          where: {
+            id: groupId,
+          },
+          data: dataToUpdate,
+        });
+        return group;
+      }
+    }),
 });
